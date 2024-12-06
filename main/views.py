@@ -244,17 +244,17 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
         inputInventoryFinal = int(x['inventoryFinal'])  # Final inventory
         inputOptimalCost = int(x['optimalCost'])  # Optimal cost
 
-        for i in range(1, num_months + 1):  # Loop through each month
+        for loop in range(1, num_months + 1):  # Loop through each month
             original_cost = inputOptimalCost  # Store the original optimal cost
-            original_demand = inputDemands[i-1]  # Store the original demand for the month
+            original_demand = inputDemands[loop-1]  # Store the original demand for the month
             step_size = min(inputProdPermanent, inputProdTemporary)  # Define the perturbation step size
             aiDemand = 0  # Initialize allowable increase in demand
             adDemand = 0  # Initialize allowable decrease in demand
             iteration = 0  # Initialize iteration counter for increase perturbation
             
             while iteration < 100:  # Perform iterative perturbation to increase demand
-                inputDemands[i-1] += step_size  # Increase the demand by step size
                 
+                inputDemands[loop-1] += step_size  # Increase the demand by step size
                 # Define the linear programming problem to minimize cost
                 month = list(range(num_months))
                 monthIHC = list(range(num_months - 1))
@@ -301,11 +301,11 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
                 
                 iteration += 1  # Increment the iteration counter
 
-            inputDemands[i-1] = original_demand  # Reset the demand to its original value
+            inputDemands[loop-1] = original_demand  # Reset the demand to its original value
             iteration = 0  # Initialize iteration counter for decrease perturbation
             
             while iteration < 200:  # Perform iterative perturbation to decrease demand
-                inputDemands[i-1] -= step_size  # Decrease the demand by step size
+                inputDemands[loop-1] -= step_size  # Decrease the demand by step size
                 
                 # Define the linear programming problem to minimize cost
                 month = list(range(num_months))
@@ -353,13 +353,13 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
                 
                 iteration += 1  # Increment the iteration counter
 
-            inputDemands[i-1] = original_demand  # Reset the demand to its original value
             
+            inputDemands[loop-1] = original_demand  # Reset the demand to its original value
             aiDemands.append(aiDemand)  # Append the allowable increase in demand to the list
             adDemands.append(adDemand)  # Append the allowable decrease in demand to the list
-            increasedDemands.append(inputDemands[i-1] + aiDemand)  # Append the increased demand to the list
-            decreasedDemands.append(inputDemands[i-1] - adDemand)  # Append the decreased demand to the list
         
+            increasedDemands.append(inputDemands[loop-1] + aiDemand)  # Append the increased demand to the list
+            decreasedDemands.append(inputDemands[loop-1] - adDemand)  # Append the decreased demand to the list
     # Render the sensitivity analysis results in the template
     return render(request, "main/sensitivity.html", {
         'detail': detail, 
